@@ -72,12 +72,39 @@ Cada módulo debe tener:
 - Catálogos.
 - KPIs.
 
-### 2.5 Seguridad
+### 2.5 Seguridad base obligatoria
 
+La seguridad se entrega desde el primer sprint base, antes de módulos operativos.
+
+Debe incluir:
+
+- Autenticación segura.
+- MFA / doble factor obligatorio configurable.
+- TOTP Authenticator App.
+- Email OTP como fallback controlado.
+- Recovery codes.
+- Enrolamiento MFA forzado por política.
 - Permission guards backend.
 - Field-level permissions cuando aplique.
 - Scope por tenant/company.
 - Data scopes: own, assigned, company, warehouse, customer, route, fleet group.
+- Step-up authentication para acciones críticas.
+- Session timeout configurable.
+- Refresh token revocable.
+- API keys revocables.
+- Auditoría de login, logout, intentos fallidos, cambios MFA, impersonation y cambios de permisos.
+
+Acciones que deben soportar step-up MFA:
+
+- Cambiar permisos.
+- Activar/desactivar módulos.
+- Ejecutar pagos.
+- Aprobar pagos.
+- Cerrar liquidaciones.
+- Cerrar operación económicamente.
+- Exportar datos sensibles.
+- Impersonation.
+- Rotar tokens/secrets.
 
 ### 2.6 Auditoría
 
@@ -142,6 +169,16 @@ Un módulo se considera terminado cuando:
 - Tiene tests mínimos.
 - Está documentado.
 
+Identity / Security Foundation se considera terminado cuando además:
+
+- MFA funciona.
+- Recovery codes funcionan.
+- Step-up MFA funciona.
+- Refresh tokens son revocables.
+- API keys son revocables.
+- Intentos fallidos quedan auditados.
+- Permisos de campo se evalúan en backend.
+
 ## 4. Prohibiciones
 
 No hacer:
@@ -153,3 +190,5 @@ No hacer:
 - Crear flujos paralelos al Operation Core.
 - Duplicar clientes, conductores, vehículos o documentos dentro de Operation.
 - Crear microservicios antes de validar el monolito modular.
+- Tratar MFA como backlog futuro.
+- Crear `Expedition` como raíz técnica paralela a `Operation`.
