@@ -6,10 +6,12 @@ Este documento resume los módulos aprobados de Sentinel Logistic Truck, su prop
 
 ---
 
-# 2. Identity Core
+# 2. Security Baseline / Identity Core
 
 ## Propósito
 Gobierna identidad, autenticación, autorización, perfiles, roles, permisos granulares, módulos por empresa y replicación para holdings.
+
+La seguridad es fundacional. Debe implementarse antes de los módulos operativos.
 
 ## Entidades base
 - Tenant
@@ -24,13 +26,24 @@ Gobierna identidad, autenticación, autorización, perfiles, roles, permisos gra
 - ProfileTemplate
 - PermissionTemplate
 - Session
+- RefreshToken
 - ApiKey
+- MfaFactor
+- MfaChallenge
+- RecoveryCode
+- TrustedDevice
+- SecurityAuditLog
 
 ## Reglas
 - Los usuarios pertenecen al tenant, no se duplican por empresa.
 - Un usuario puede tener perfiles distintos por empresa.
 - Los módulos se activan por Company.
 - Permisos granulares por módulo, recurso, acción y campo.
+- MFA / doble factor es obligatorio como capacidad base.
+- MFA puede exigirse por tenant, company, perfil, rol, módulo o acción crítica.
+- Step-up authentication debe existir para acciones críticas.
+- Sesiones, refresh tokens y API keys deben ser revocables.
+- Todo acceso y cambio sensible se audita.
 
 ---
 
@@ -155,11 +168,14 @@ Cotizador y motor de planificación: rutas, costos, escenarios, ETA, peajes, com
 # 9. Operation Core
 
 ## Propósito
-Corazón operacional. Operation es entidad raíz; Expedition es OperationType.
+Corazón operacional. `Operation` es la entidad raíz técnica.
+
+`Expedición` es el nombre comercial que el cliente usa para la operación. Técnicamente debe mapearse como `OperationType = EXPEDITION` o como label visible configurable, pero no debe crear una raíz paralela.
 
 ## Submódulos
 - Operations
 - Operation Types
+- Business Labels
 - Segments
 - Stops
 - Cargo Lines
@@ -174,6 +190,17 @@ Corazón operacional. Operation es entidad raíz; Expedition es OperationType.
 - No duplica datos maestros.
 - Cualquier mutación importante crea evento y auditoría.
 - Usa optimistic concurrency.
+- En UI puede mostrarse como Expediciones si la Company así lo configura.
+- En código, base de datos y contratos debe mantenerse `Operation` como raíz.
+- No crear flujo, tabla o servicio `Expedition` que compita con `Operation`.
+
+## OperationType inicial
+- EXPEDITION
+- TRANSFER
+- PICKUP
+- DISTRIBUTION
+- RETURN
+- SERVICE
 
 ---
 
