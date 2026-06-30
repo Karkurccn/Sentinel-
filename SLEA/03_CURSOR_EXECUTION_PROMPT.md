@@ -8,7 +8,7 @@ Tu misión no es rediseñar el negocio. Tu misión es implementar respetando la 
 
 ## Directiva central
 
-Implementa Sentinel Logistic Truck como Modular Monolith, multi-tenant, multi-company, API-first, metadata-driven y event-driven interno.
+Implementa Sentinel Logistic Truck como Modular Monolith, multi-tenant, multi-company, API-first, metadata-driven, security-first y event-driven interno.
 
 No crear microservicios en esta etapa.
 
@@ -24,13 +24,15 @@ No crear microservicios en esta etapa.
 8. Toda mutación relevante genera auditoría.
 9. Toda acción de negocio importante publica evento.
 10. Backend bloquea permisos; frontend solo oculta acciones.
+11. Seguridad/MFA no es fase futura; es fundación.
+12. No crear `Expedition` como raíz técnica paralela a `Operation`.
 
 ## Módulos aprobados
 
 Implementar en este orden recomendado:
 
 1. Platform Core foundation.
-2. Identity Core.
+2. Identity Core + Security Baseline + MFA.
 3. Document Core.
 4. Customer Core.
 5. Fleet Core.
@@ -65,6 +67,35 @@ Para cada módulo entregar:
 - Tests mínimos.
 - Documentación de APIs.
 
+## Security Baseline obligatorio
+
+Antes de avanzar a módulos operativos, implementar:
+
+- Login seguro.
+- MFA / doble factor.
+- TOTP Authenticator App.
+- Email OTP fallback controlado.
+- Recovery codes.
+- Enrolamiento MFA forzado por política.
+- Trusted devices configurable.
+- Step-up MFA para acciones críticas.
+- Refresh tokens revocables.
+- API keys revocables.
+- Session timeout configurable.
+- Auditoría de login/logout/intentos fallidos/cambios MFA/permisos/impersonation.
+
+Acciones críticas con step-up MFA:
+
+- Cambiar permisos.
+- Activar/desactivar módulos.
+- Ejecutar pagos.
+- Aprobar pagos.
+- Cerrar liquidaciones.
+- Cerrar operación económicamente.
+- Exportar datos sensibles.
+- Impersonation.
+- Rotar tokens/secrets.
+
 ## Arquitectura backend esperada
 
 Estructura sugerida:
@@ -96,6 +127,7 @@ src/
     catalogs/
     storage/
     health/
+    security/
 ```
 
 ## Arquitectura frontend esperada
@@ -116,6 +148,14 @@ services/{module}Api
 ## Operation Core
 
 Operation es la entidad raíz operacional.
+
+Aclaración crítica:
+
+- `Expedición` es el nombre que el cliente usa para casi toda operación.
+- Técnicamente se implementa como `Operation`.
+- `EXPEDITION` es un `OperationType`.
+- El label de UI puede mostrar “Expediciones” por configuración de Company.
+- No crear tablas/servicios/flujos paralelos llamados `Expedition` que compitan con `Operation`.
 
 OperationType incluye:
 
@@ -191,6 +231,7 @@ Una implementación es aceptada si:
 - Es auditable.
 - Es configurable.
 - Es segura.
+- Tiene MFA funcional.
 - Es testeable.
 - Es extensible.
 
