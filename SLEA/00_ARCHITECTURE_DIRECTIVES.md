@@ -86,7 +86,15 @@ Ejemplos:
 
 La entidad raíz operacional es `Operation`.
 
-`Expedition` es un `OperationType`, no una raíz separada.
+`Expedition` / `Expedición` **no es una entidad raíz separada**. Es un `OperationType` y también un **nombre comercial/operativo** que algunos clientes usan para referirse a cualquier operación logística.
+
+Regla de naming:
+
+- En base de datos y dominio técnico, usar `Operation`.
+- En UI se puede mostrar `Expedición` cuando el cliente llame así a sus operaciones.
+- El label visible debe ser configurable por Company mediante settings/catálogos.
+- No crear tablas, servicios o flujos paralelos llamados `Expedition` que compitan con `Operation`.
+- Si aparece legacy `Expedition`, debe migrarse o mapearse hacia `Operation`.
 
 Operation debe soportar:
 
@@ -120,6 +128,7 @@ Debe ser configurable:
 - KPIs.
 - Permisos.
 - Feature flags.
+- Labels de negocio, incluyendo que `Operation` se muestre como `Expedición` cuando el cliente lo requiera.
 
 ## 9. Document Core transversal
 
@@ -155,13 +164,43 @@ Toda integración externa debe pasar por Integration Hub:
 
 Los módulos de negocio no deben integrar directamente proveedores externos.
 
-## 11. Seguridad
+## 11. Seguridad como base esencial
+
+La seguridad no es una fase posterior ni un módulo opcional. Es **punto base obligatorio** de la plataforma.
+
+Reglas mínimas:
 
 - Backend valida permisos siempre.
 - Frontend solo oculta acciones; no es seguridad.
 - Permisos deben soportar módulo, recurso, acción y campo.
 - Todo cambio sensible exige auditoría.
 - Credenciales externas se almacenan mediante `secretRef` o `configRef`, nunca texto plano.
+- Implementar doble factor de autenticación / MFA desde la base.
+- MFA debe ser configurable por Tenant y Company.
+- MFA debe poder ser obligatorio por perfil, rol, módulo o acción crítica.
+- Acciones críticas deben poder exigir step-up authentication aunque el usuario ya esté logueado.
+- Sesiones, refresh tokens y API keys deben ser revocables.
+- Toda autenticación fallida debe auditarse.
+- Todo acceso administrativo debe auditarse.
+
+MFA mínimo esperado:
+
+- TOTP Authenticator App.
+- Email OTP como fallback controlado.
+- Recovery codes.
+- Política para forzar enrolamiento.
+- Registro de dispositivo confiable configurable.
+
+Acciones críticas que deben soportar step-up MFA:
+
+- Cambiar permisos.
+- Activar/desactivar módulos.
+- Ejecutar pagos.
+- Aprobar liquidaciones.
+- Cerrar operación económicamente.
+- Ver o exportar información sensible.
+- Impersonation.
+- Rotar tokens o secrets.
 
 ## 12. Regla final
 
